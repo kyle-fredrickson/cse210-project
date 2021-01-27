@@ -1,0 +1,8 @@
+*/main
+
+*/*.o
+*/*.hi
+*/*.hi
+
+python/__pycache__/
+
