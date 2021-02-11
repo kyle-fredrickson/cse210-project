@@ -1,8 +1,8 @@
-def speck_encrypt():
-    pass
+def speck_encrypt(pt, key):
+    return pt
 
-def speck_decrypt():
-    pass
+def speck_decrypt(ct, key):
+    return ct
 
-def speck_ctr():
-    pass
+def speck_ctr(pt, key, nonce):
+    return pt

@@ -1,20 +1,86 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
-
+#include <string.h>
 
 #include "speck.h"
 
-int main(int argc, char **argv)
+void read_hex64(char *in, uint64_t len_in, uint64_t *out)
 {
-    if (argc != 4)
+    char n[16];
+    for (int i = 0; i < len_in / 16; i++)
+    {
+        strncpy(n, &in[len_in - (16 * (i + 1))], 16);
+        out[i] = strtol(n, NULL, 16);
+    }
+}
+
+void chunk64(uint8_t *in, uint64_t len_out, uint64_t *out) //len of out, little endian
+{
+    uint64_t n;
+    for(uint64_t i = 0; i < len_out; i++)
+    {
+        n = 0L;
+        for(int j = 0; j < 8; j++)
+            n = (n << 8) + (uint64_t) in[8 * i + (7 - j)];
+        out[i] = n;
+    }
+}
+
+// void chunk_bytes( )
+
+int main(int argc, uint8_t *argv[])
+{
+    if (argc != 5)
         return 1;
     else
     {
-        char *fileIn = argv[1];
-        char *key= argv[2];
-        char *fileOut = argv[3];
-        // FILE *fp = fopen
+        uint8_t *fileIn = argv[1];
+        uint8_t *key_str = argv[2];
+        uint8_t *nonce_str = argv[3];
+        uint8_t *fileOut = argv[4];
+
+        // read key
+        uint64_t key[4];
+        read_hex64(key_str, 64, key);
+
+        // read nonce
+        uint64_t nonce[2];
+        read_hex64(nonce_str, 32, nonce);
+
+        // read file
+        FILE *in_file = fopen(fileIn, "rb");
+
+        fseek(in_file, 0L, SEEK_END);
+        uint64_t fsize = ftell(in_file);
+        if (!fsize)
+        {
+            fsize = 16UL;
+        }
+        uint64_t padded_file_size = fsize + (((-fsize % 16) + 16) % 16); //padded to multiple of 16 bytes
+        rewind(in_file);
+
+        uint8_t *buff = calloc(padded_file_size, 1);
+        fread(buff, 1, fsize, in_file);
+        fclose(in_file);
+
+        // transform file into 64b blocks
+        uint64_t pt_size = padded_file_size / 8;
+        uint64_t *pt= malloc(padded_file_size);
+        chunk64(buff, pt_size, pt);
+        free(buff);
+
+        //encrypt
+        uint64_t *ct = malloc(padded_file_size);
+        speck_ctr(pt, ct, pt_size, key, nonce);
+
+        // write file
+        FILE *out_file = fopen(fileOut, "wb");
+        fwrite(ct, 1, padded_file_size, out_file);
+        fclose(out_file);
+
+        free(pt);
+
         return 0;
     }
 
