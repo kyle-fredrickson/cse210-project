@@ -14,7 +14,6 @@ def chunk_int64(i):
     out = []
 
     mask = (1 << 64) - 1
-    c = 0
     while(i != 0):
         out.append(mask & i)
         i = i >> 64
