@@ -1,7 +1,8 @@
 BIN = main
 
 test: c/$(BIN) haskell/$(BIN) racket/$(BIN) python/main.py rust/$(BIN)
-	@echo "Running tests."
+	@echo "Running tests..."
+	@echo ""
 	@./test.sh
 
 c/$(BIN): c/main.c c/speck.c

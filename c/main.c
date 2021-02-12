@@ -11,7 +11,7 @@ void read_hex64(char *in, uint64_t len_in, uint64_t *out)
     for (int i = 0; i < len_in / 16; i++)
     {
         strncpy(n, &in[len_in - (16 * (i + 1))], 16);
-        out[i] = strtol(n, NULL, 16);
+        out[i] = strtoul(n, NULL, 16);
     }
 }
 
@@ -43,10 +43,28 @@ int main(int argc, uint8_t *argv[])
         // read key
         uint64_t key[4];
         read_hex64(key_str, 64, key);
+        uint64_t *ks = malloc(34 * sizeof(uint64_t));
+        key_schedule(key, ks);
+
+        for (int i = 0; i < 4; i++)
+            printf("key %d: %016lx\n", i, key[i]);
+
+        printf("\n");
+        for (int i = 0; i < 34; i++)
+            printf("key schedule %d: %016lx\n", i, ks[i]);
+
+        printf("\n");
 
         // read nonce
         uint64_t nonce[2];
         read_hex64(nonce_str, 32, nonce);
+
+        printf("%s\n", nonce_str);
+
+        for (int i = 0; i < 2; i++)
+            printf("nonce %d: %016lx\n", i, nonce[i]);
+
+        printf("\n");
 
         // read file
         FILE *in_file = fopen(fileIn, "rb");
@@ -70,9 +88,18 @@ int main(int argc, uint8_t *argv[])
         chunk64(buff, pt_size, pt);
         free(buff);
 
+        for (int i = 0; i < pt_size; i++)
+            printf("pt %d: %016lx\n", i, pt[i]);
+
+        printf("\n");
+
+
         //encrypt
         uint64_t *ct = malloc(padded_file_size);
         speck_ctr(pt, ct, pt_size, key, nonce);
+
+        for (int i = 0; i < pt_size; i++)
+            printf("ct %d: %016lx\n", i, ct[i]);
 
         // write file
         FILE *out_file = fopen(fileOut, "wb");
@@ -80,6 +107,7 @@ int main(int argc, uint8_t *argv[])
         fclose(out_file);
 
         free(pt);
+        free(ct);
 
         return 0;
     }
@@ -87,21 +115,4 @@ int main(int argc, uint8_t *argv[])
     // uint64_t speck_key[4] = {0x0706050403020100UL,0x0f0e0d0c0b0a0908UL,0x1716151413121110UL, 0x1f1e1d1c1b1a1918UL};
     // uint64_t speck_pt[2] = {0x202e72656e6f6f70UL, 0x65736f6874206e49UL};
     // uint64_t speck_ct[2] = {0x4eeeb48d9c188f43UL, 0x4109010405c0f53eUL};
-    // uint64_t test[2] = {0UL, 0UL};
-
-    // speck_encrypt(speck_pt, test, speck_key);
-    // int speck_test = 1;
-    // for (int i = 0; i < 2; i++)
-    // {
-    //     speck_test = speck_test && (speck_ct[i] == test[i]);
-    // }
-    // speck_decrypt(speck_ct, test, speck_key);
-    // for (int i = 0; i < 2; i++)
-    // {
-    //     speck_test = speck_test && (speck_pt[i] == test[i]);
-    // }
-    // if (!speck_test)
-    //     return 0;
-    // else
-    //     return 1;
 }

@@ -56,21 +56,15 @@ void enc_round(uint64_t *in, uint64_t key)
     in[0] = rotate(right, 3) ^ (rotate(left, -8) + right) ^ key;
 }
 
-void speck_encrypt(uint64_t *in, uint64_t *out, uint64_t *key)
+void speck_encrypt(uint64_t *in, uint64_t *out, uint64_t *keys)
 {
-    uint64_t *keys = malloc(ROUNDS * sizeof(uint64_t));
-    int i;
-    if(keys == NULL) return;
-
     out[0] = in[0];
     out[1] = in[1];
-    key_schedule(key, keys);
 
-    for (i = 0; i < ROUNDS; i++)
+    for (int i = 0; i < ROUNDS; i++)
     {
         enc_round(out, keys[i]);
     }
-    free(keys);
 }
 
 void dec_round(uint64_t *in, uint64_t key)
@@ -82,40 +76,36 @@ void dec_round(uint64_t *in, uint64_t key)
     in[0] = rotate(left ^ right, -3);
 }
 
-void speck_decrypt(uint64_t *in, uint64_t *out, uint64_t *key)
+void speck_decrypt(uint64_t *in, uint64_t *out, uint64_t *keys)
 {
-    uint64_t *keys = malloc(ROUNDS * sizeof(uint64_t));
-    int i;
-    if(keys == NULL) return;
-
     out[0] = in[0];
     out[1] = in[1];
-    key_schedule(key, keys);
 
-    for (i = 0; i < ROUNDS; i++)
+    for (int i = 0; i < ROUNDS; i++)
     {
         dec_round(out, keys[i]);
     }
-    free(keys);
 }
 
 //The data has to be 128 bit aligned
 void speck_ctr(uint64_t *in, uint64_t *out, size_t pt_length, uint64_t *key, uint64_t *nonce)
 {
-    uint64_t* pad = malloc(2 * sizeof(uint64_t));
+    uint64_t pad[2] = {0UL, 0UL};
     uint64_t local_nonce[2] = {nonce[0], nonce[1]};
-    int i;
+    uint64_t *keys = malloc(ROUNDS * sizeof(uint64_t));
 
-    if(pad == NULL) return;
+    if(pad == NULL || keys == NULL) return;
 
-    for (i = 0; i <= pt_length - 2; i+=2)
+    key_schedule(key, keys);
+
+    for (int i = 0; i <= pt_length - 2; i+=2)
     {
-        speck_encrypt(local_nonce, pad, key);
+        speck_encrypt(local_nonce, pad, keys);
 
         out[i] = in[i] ^ pad[0];
         out[i + 1] = in[i + 1] ^ pad[1];
 
         add1(local_nonce, 2);
     }
-    free(pad);
+    free(keys);
 }

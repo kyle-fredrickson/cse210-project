@@ -15,35 +15,40 @@ function test()
         echo "$1 passed."
     fi
 
-	# [ -f $FILE_OUT ] && rm $FILE_OUT || true
+	[ -f $FILE_OUT ] && rm $FILE_OUT || true
 }
 
 function test_c()
 {
-    ./c/main $FILE_IN $KEY $NONCE $FILE_OUT
+    echo "Testing C..."
+    ./c/main $FILE_IN $KEY $NONCE $FILE_OUT > c/out.txt
     test C
 }
 
 function test_haskell()
 {
-    ./haskell/main $FILE_IN $KEY $NONCE $FILE_OUT
+    echo "Testing Haskell..."
+    ./haskell/main $FILE_IN $KEY $NONCE $FILE_OUT > haskell/out.txt
     test Haskell
 }
 
 function test_python()
 {
-    ./python/main.py $FILE_IN $KEY $NONCE $FILE_OUT
+    echo "Testing Python..."
+    ./python/main.py $FILE_IN $KEY $NONCE $FILE_OUT > python/out.txt
     test Python
 }
 
 function test_racket()
 {
-    ./racket/main $FILE_IN $KEY $NONCE $FILE_OUT
+    echo "Testing Racket..."
+    ./racket/main $FILE_IN $KEY $NONCE $FILE_OUT > racket/out.txt
     test Racket
 }
 function test_rust()
 {
-    ./rust/main $FILE_IN $KEY $NONCE $FILE_OUT
+    echo "Testing Rust..."
+    ./rust/main $FILE_IN $KEY $NONCE $FILE_OUT > rust/out.txt
     test Rust
 }
 
