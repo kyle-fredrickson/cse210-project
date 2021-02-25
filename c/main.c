@@ -27,8 +27,6 @@ void chunk64(uint8_t *in, uint64_t len_out, uint64_t *out) //len of out, little 
     }
 }
 
-// void chunk_bytes( )
-
 int main(int argc, uint8_t *argv[])
 {
     if (argc != 5)
@@ -59,8 +57,6 @@ int main(int argc, uint8_t *argv[])
         uint64_t nonce[2];
         read_hex64(nonce_str, 32, nonce);
 
-        printf("%s\n", nonce_str);
-
         for (int i = 0; i < 2; i++)
             printf("nonce %d: %016lx\n", i, nonce[i]);
 
@@ -88,11 +84,12 @@ int main(int argc, uint8_t *argv[])
         chunk64(buff, pt_size, pt);
         free(buff);
 
+        printf("pt length: %lu\n", pt_size);
+
         for (int i = 0; i < pt_size; i++)
             printf("pt %d: %016lx\n", i, pt[i]);
 
         printf("\n");
-
 
         //encrypt
         uint64_t *ct = malloc(padded_file_size);

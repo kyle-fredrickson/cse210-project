@@ -4,8 +4,11 @@ KEY=1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100
 NONCE=65736f6874206e49202e72656e6f6f70
 
 FILE_IN=tests/book.pdf
+# FILE_IN=out.enc
 TRUE=tests/book.enc
+# TRUE=tests/book.pdf
 FILE_OUT=out.enc
+# FILE_OUT=book.pdf
 
 function test()
 {
@@ -56,9 +59,9 @@ function main()
 {
     test_c
     # test_haskell
-    # test_python
+    test_python
     # test_racket
-    # test_rust
+    test_rust
 }
 
 main

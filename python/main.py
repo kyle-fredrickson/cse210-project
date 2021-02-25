@@ -36,6 +36,8 @@ def encrypt_file(file_in, key, nonce, file_out):
     data = chunk_bytes64(pad128(data))
     enc_data = speck_ctr(data, key, nonce)
 
+    print("pt length:", len(data))
+
     for i in range(len(data)):
         print("pt %d: %016x" % (i, data[i]))
 

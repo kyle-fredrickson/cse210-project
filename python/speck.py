@@ -42,21 +42,6 @@ def speck_encrypt(pt, keys):
 
     return ct
 
-def dec_round(n, key):
-    left = n[1]
-    right = n[0]
-
-    n[1] = rot64((((left ^ key) - rot64(left ^ right, -3) % (MAX64 + 1)) + (MAX64 + 1)) & MAX64, 8)
-    n[0] = rot64(left ^ right, -3)
-
-def speck_decrypt(ct, keys):
-    pt = [ct[0], ct[1]]
-
-    for i in range(ROUNDS):
-        dec_round(pt, keys[i])
-
-    return pt
-
 def speck_ctr(pt, key, nonce):
     out = [0] * len(pt)
     local_nonce = [nonce[0], nonce[1]]

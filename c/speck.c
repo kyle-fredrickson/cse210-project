@@ -5,7 +5,7 @@
 
 uint64_t rotate(uint64_t in, int8_t rotation)
 {
-    if (rotation > 0) // left circular shift
+    if (rotation >= 0) // left circular shift
     {
         return (in >> (64 - rotation)) | (in << rotation);
     }
@@ -64,26 +64,6 @@ void speck_encrypt(uint64_t *in, uint64_t *out, uint64_t *keys)
     for (int i = 0; i < ROUNDS; i++)
     {
         enc_round(out, keys[i]);
-    }
-}
-
-void dec_round(uint64_t *in, uint64_t key)
-{
-    uint64_t left = in[1];
-    uint64_t right = in[0];
-
-    in[1] = rotate((left ^ key) - rotate(left ^ right, -3), 8);
-    in[0] = rotate(left ^ right, -3);
-}
-
-void speck_decrypt(uint64_t *in, uint64_t *out, uint64_t *keys)
-{
-    out[0] = in[0];
-    out[1] = in[1];
-
-    for (int i = 0; i < ROUNDS; i++)
-    {
-        dec_round(out, keys[i]);
     }
 }
 
