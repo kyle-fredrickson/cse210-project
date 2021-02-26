@@ -1,21 +1,70 @@
---import Data.ByteString ()
-import System.Environment
+import Data.Binary.Get ( getWord64le, runGet )
+import Data.Bits ( Bits((.|.), shiftL) )
+import Data.ByteString as BS ( append, length, pack, readFile, replicate, unpack, writeFile, ByteString )
+import Data.ByteString.Builder
+import Data.ByteString.Lazy as BL ( unpack )
+import Data.List.Split ( chunksOf )
+import Data.Word ( Word8, Word64 )
+import Numeric ( readHex )
+import System.Environment ( getArgs )
 import System.Exit ( exitSuccess, exitFailure )
-import System.IO
+import Text.Printf ( printf )
 
 import Speck ()
 
-encryptFile file key nonce fileOut = putStr ""
+encryptFile file key nonce fileOut = Prelude.putStr ""
 
-readKey key = key
+read64Hex :: String -> [Word64]
+read64Hex hexStr = let hexStrs = reverse (chunksOf 16 hexStr) in
+    map (fst . last . readHex) hexStrs
 
+bytesToWord64LE :: [Word8]-> Word64
+bytesToWord64LE =
+    foldr (\ a b -> (b `shiftL` 8) .|. fromIntegral a) 0
+
+word64ToBytesLE :: Word64 -> [Word8]
+word64ToBytesLE = BL.unpack . toLazyByteString . word64LE
+
+chunk64 :: [Word8] -> [Word64]
+chunk64 bytes = let split = chunksOf 8 bytes in
+    map bytesToWord64LE split
+
+dechunk64 :: [Word64] -> [Word8]
+dechunk64 words = let b = map word64ToBytesLE words in
+    concat b
+
+pad128File :: ByteString -> ByteString
+pad128File bytes = let len = toInteger (BS.length bytes)
+                       pad = (BS.replicate . fromIntegral) (-len `mod` 16 + 16) 0
+    in BS.append bytes pad
+
+
+prettyPrint :: String -> [Word64] -> IO ()
+prettyPrint str xs =
+    let prettyPrint' :: String -> Int -> [Word64] -> IO ()
+        prettyPrint' _ _ [] = do putStrLn ""
+        prettyPrint' str i (x:xs) = do
+            putStrLn $ str ++ printf " %d: %016lx" i x
+            prettyPrint' str (i + 1) xs
+    in prettyPrint' str 0 xs
+
+main :: IO b
 main = do
     args <- getArgs
-    if length args /= 4
+    if Prelude.length args /= 4
     then exitFailure
-    else let [fileIn, key, nonce, fileOut] = args
-         in do inFile <- openBinaryFile fileIn ReadMode
-               fSize <- hFileSize inFile
-               print fSize
-               hClose inFile
-               exitSuccess
+    else let [fileIn, keyStr, nonceStr, fileOut] = args
+        in do
+            bytes <- BS.readFile fileIn
+            let key = read64Hex keyStr
+                nonce = read64Hex nonceStr
+                paddedBytes = pad128File bytes
+                pt =  (chunk64 . BS.unpack) paddedBytes
+                pt_pairs = chunksOf 2 pt
+                ctBytes = (BS.pack . dechunk64) pt in do
+                    prettyPrint "key" key
+                    prettyPrint "nonce" nonce
+                    putStrLn ("pt length: " ++ (show . Prelude.length) pt)
+                    prettyPrint "pt" pt
+                    BS.writeFile fileOut ctBytes
+            exitSuccess

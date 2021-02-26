@@ -12,56 +12,56 @@ FILE_OUT=out.enc
 
 function test()
 {
-    if [ $? -ne 0 ] || ! cmp -s $TRUE $FILE_OUT ; then
+    if [ $? -ne 0 ] || ! cmp -s $TRUE $2 ; then
         echo "$1 failed."
     else
         echo "$1 passed."
     fi
 
-	[ -f $FILE_OUT ] && rm $FILE_OUT || true
+	# [ -f $FILE_OUT ] && rm $FILE_OUT || true
 }
 
 function test_c()
 {
     echo "Testing C..."
-    ./c/main $FILE_IN $KEY $NONCE $FILE_OUT > c/out.txt
-    test C
+    ./c/main $FILE_IN $KEY $NONCE c/$FILE_OUT > c/out.txt
+    test C c/$FILE_OUT
 }
 
 function test_haskell()
 {
     echo "Testing Haskell..."
-    ./haskell/main $FILE_IN $KEY $NONCE $FILE_OUT > haskell/out.txt
-    test Haskell
+    ./haskell/main $FILE_IN $KEY $NONCE haskell/$FILE_OUT > haskell/out.txt
+    test Haskell haskell/$FILE_OUT
 }
 
 function test_python()
 {
     echo "Testing Python..."
-    ./python/main.py $FILE_IN $KEY $NONCE $FILE_OUT > python/out.txt
-    test Python
+    ./python/main.py $FILE_IN $KEY $NONCE python/$FILE_OUT > python/out.txt
+    test Python python/$FILE_OUT
 }
 
 function test_racket()
 {
     echo "Testing Racket..."
-    ./racket/main $FILE_IN $KEY $NONCE $FILE_OUT > racket/out.txt
-    test Racket
+    ./racket/main $FILE_IN $KEY $NONCE racket/$FILE_OUT > racket/out.txt
+    test Racket racket/$FILE_OUT
 }
 function test_rust()
 {
     echo "Testing Rust..."
-    ./rust/main $FILE_IN $KEY $NONCE $FILE_OUT > rust/out.txt
-    test Rust
+    ./rust/main $FILE_IN $KEY $NONCE rust/$FILE_OUT > rust/out.txt
+    test Rust rust/$FILE_OUT
 }
 
 function main()
 {
-    test_c
-    # test_haskell
-    test_python
+    # test_c
+    test_haskell
+    # test_python
     # test_racket
-    test_rust
+    # test_rust
 }
 
 main
