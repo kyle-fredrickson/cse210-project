@@ -27,3 +27,4 @@ clean:
 	@[ -d python/__pycache__ ] && rm -r python/__pycache__ || true
 	@[ -f racket/$(BIN) ] && rm racket/$(BIN) || true
 	@[ -f rust/$(BIN) ] && rm rust/$(BIN) || true
+	@rm */out.*

@@ -57,7 +57,7 @@ function test_rust()
 
 function main()
 {
-    # test_c
+    test_c
     test_haskell
     # test_python
     # test_racket

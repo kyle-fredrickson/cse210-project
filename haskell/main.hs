@@ -1,7 +1,6 @@
-import Data.Binary.Get ( getWord64le, runGet )
 import Data.Bits ( Bits((.|.), shiftL) )
 import Data.ByteString as BS ( append, length, pack, readFile, replicate, unpack, writeFile, ByteString )
-import Data.ByteString.Builder
+import Data.ByteString.Builder ( toLazyByteString, word64LE )
 import Data.ByteString.Lazy as BL ( unpack )
 import Data.List.Split ( chunksOf )
 import Data.Word ( Word8, Word64 )
@@ -10,7 +9,7 @@ import System.Environment ( getArgs )
 import System.Exit ( exitSuccess, exitFailure )
 import Text.Printf ( printf )
 
-import Speck ()
+import Speck ( speckCtr, keySchedule )
 
 encryptFile file key nonce fileOut = Prelude.putStr ""
 
@@ -57,14 +56,18 @@ main = do
         in do
             bytes <- BS.readFile fileIn
             let key = read64Hex keyStr
+                keys = keySchedule key
                 nonce = read64Hex nonceStr
                 paddedBytes = pad128File bytes
                 pt =  (chunk64 . BS.unpack) paddedBytes
-                pt_pairs = chunksOf 2 pt
-                ctBytes = (BS.pack . dechunk64) pt in do
+                ct = speckCtr pt key nonce
+                ctBytes = (BS.pack . dechunk64) ct in do
                     prettyPrint "key" key
+                    prettyPrint "key schedule" keys
                     prettyPrint "nonce" nonce
-                    putStrLn ("pt length: " ++ (show . Prelude.length) pt)
+                    putStrLn ("pt length:" ++ (show . Prelude.length) pt)
                     prettyPrint "pt" pt
+                    prettyPrint "ct" ct
                     BS.writeFile fileOut ctBytes
+
             exitSuccess
