@@ -18,7 +18,7 @@ function test()
         echo "$1 passed."
     fi
 
-	# [ -f $FILE_OUT ] && rm $FILE_OUT || true
+	[ -f $2 ] && rm $2 || true
 }
 
 function test_c()

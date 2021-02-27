@@ -150,11 +150,8 @@ fn main() -> Result<(), ()>
                 Err(_) => panic!("Could not create out file.")
             }
         };
-        match out_file.write_all(&ct_bytes)
-        {
-            Ok(_) => drop(out_file),
-            Err(_) => panic!("Could not write to out file.")
-        };
+        out_file.write_all(&ct_bytes);
+        drop(out_file);
 
         Ok(())
     }
