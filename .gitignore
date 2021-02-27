@@ -5,6 +5,9 @@
 */*.hi
 */*.hi
 
+*/*.rkt~
+*/compiled
+
 python/__pycache__/
 
 tests/

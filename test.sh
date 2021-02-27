@@ -59,9 +59,9 @@ function main()
 {
     test_c
     test_haskell
-    # test_python
-    # test_racket
-    # test_rust
+    test_python
+    test_racket
+    test_rust
 }
 
 main
