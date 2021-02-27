@@ -10,6 +10,9 @@
 
 python/__pycache__/
 
-tests/
+test-data/
+
+*.csv
+*.ipynb
 
 *.enc

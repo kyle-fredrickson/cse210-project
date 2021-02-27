@@ -3,65 +3,45 @@
 KEY=1f1e1d1c1b1a191817161514131211100f0e0d0c0b0a09080706050403020100
 NONCE=65736f6874206e49202e72656e6f6f70
 
-FILE_IN=tests/book.pdf
-# FILE_IN=out.enc
-TRUE=tests/book.enc
-# TRUE=tests/book.pdf
 FILE_OUT=out.enc
-# FILE_OUT=book.pdf
+DEBUG_FILE=out.txt
 
 function test()
 {
-    if [ $? -ne 0 ] || ! cmp -s $TRUE $2 ; then
-        echo "$1 failed."
+    local folder=$1
+    local file_out=$2
+    local true_file=$3
+
+    if [ $? -ne 0 ] || ! cmp -s $true_file $file_out ; then
+        echo "$folder failed."
     else
-        echo "$1 passed."
+        echo "$folder passed."
     fi
 
-	[ -f $2 ] && rm $2 || true
+    # uncomment the line below to ensure current run's output is tested
+	# [ -f $file_out ] && rm $file_out || true
 }
 
-function test_c()
+function run_test()
 {
-    echo "Testing C..."
-    ./c/main $FILE_IN $KEY $NONCE c/$FILE_OUT > c/out.txt
-    test C c/$FILE_OUT
-}
+    local folder=$1
+    local bin=$folder/$2
+    local file_in=$3
+    local true_file=$4
 
-function test_haskell()
-{
-    echo "Testing Haskell..."
-    ./haskell/main $FILE_IN $KEY $NONCE haskell/$FILE_OUT > haskell/out.txt
-    test Haskell haskell/$FILE_OUT
-}
-
-function test_python()
-{
-    echo "Testing Python..."
-    ./python/main.py $FILE_IN $KEY $NONCE python/$FILE_OUT > python/out.txt
-    test Python python/$FILE_OUT
-}
-
-function test_racket()
-{
-    echo "Testing Racket..."
-    ./racket/main $FILE_IN $KEY $NONCE racket/$FILE_OUT > racket/out.txt
-    test Racket racket/$FILE_OUT
-}
-function test_rust()
-{
-    echo "Testing Rust..."
-    ./rust/main $FILE_IN $KEY $NONCE rust/$FILE_OUT > rust/out.txt
-    test Rust rust/$FILE_OUT
+    echo "Running $folder..."
+    ./$bin $file_in $KEY $NONCE $folder/$FILE_OUT > $folder/$DEBUG_FILE
+    # test $folder $folder/$FILE_OUT $true_file
 }
 
 function main()
 {
-    test_c
-    test_haskell
-    test_python
-    test_racket
-    test_rust
+    local folder=$1
+    local bin=$2
+    local file_in=$3
+    local true_file=$4
+
+    run_test $folder $bin $file_in $true_file
 }
 
-main
+main $1 $2 $3 $4
