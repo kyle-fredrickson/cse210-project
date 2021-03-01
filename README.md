@@ -6,3 +6,5 @@ This repository contains implementations of SPECK128/256 with counter mode in
 * Python
 * Racket
 * Rust
+
+The nonce and key used in the test script are the test vectors included in the SPECK paper.
