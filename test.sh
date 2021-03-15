@@ -31,7 +31,7 @@ function run_test()
 
     echo "Running $folder..."
     ./$bin $file_in $KEY $NONCE $folder/$FILE_OUT > $folder/$DEBUG_FILE
-    # test $folder $folder/$FILE_OUT $true_file
+    test $folder $folder/$FILE_OUT $true_file
 }
 
 function main()
