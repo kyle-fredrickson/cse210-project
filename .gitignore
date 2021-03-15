@@ -13,6 +13,5 @@ python/__pycache__/
 test-data/
 
 *.csv
-*.ipynb
 
 *.enc
